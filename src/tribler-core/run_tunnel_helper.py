@@ -20,6 +20,12 @@ from tribler_core.session import Session
 from tribler_core.utilities.osutils import get_root_state_directory
 from tribler_core.utilities.path_util import Path
 
+try:
+    import tunnelmetricsreporter
+except ImportError:
+    tunnelmetricsreporter = None
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,6 +70,7 @@ class TunnelHelperService(TaskManager):
         self.log_circuits = False
         self.session = None
         self.community = None
+        self.reporter = None
 
     def on_circuit_reject(self, reject_time, balance):
         with open(os.path.join(self.session.config.get_state_dir(), "circuit_rejects.log"), 'a') as out_file:
@@ -75,6 +82,8 @@ class TunnelHelperService(TaskManager):
             print(f"Received shut down signal {sig}")  # noqa: T001
             if not self._stopping:
                 self._stopping = True
+                if self.reporter:
+                    await get_event_loop().run_in_executor(None, self.reporter.shutdown)
                 await self.session.shutdown()
                 get_event_loop().stop()
 
@@ -163,9 +172,15 @@ class TunnelHelperService(TaskManager):
             # We set this after Tribler has started since the tunnel_community won't be available otherwise
             self.session.tunnel_community.reject_callback = self.on_circuit_reject
 
+        if tunnelmetricsreporter is not None:
+            self.reporter = tunnelmetricsreporter.MetricsReporter(self.session)
+            self.reporter.start()
+
         self.tribler_started()
         
     async def stop(self):
+        if self.reporter:
+            await get_event_loop().run_in_executor(None, self.reporter.shutdown)
         await self.shutdown_task_manager()
         if self.session:
             return self.session.shutdown()
