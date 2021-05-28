@@ -21,7 +21,8 @@ from tribler_core.modules.metadata_store.orm_bindings.channel_node import DIRTY_
 from tribler_core.modules.metadata_store.restapi.metadata_endpoint_base import MetadataEndpointBase
 from tribler_core.modules.metadata_store.restapi.metadata_schema import ChannelSchema
 from tribler_core.modules.metadata_store.serialization import CHANNEL_TORRENT, REGULAR_TORRENT
-from tribler_core.modules.metadata_store.utils import NoChannelSourcesException, RequestTimeoutException
+from tribler_core.modules.metadata_store.community.gigachannel_community import NoChannelSourcesException
+from tribler_core.modules.metadata_store.utils import RequestTimeoutException
 from tribler_core.restapi.rest_endpoint import HTTP_BAD_REQUEST, HTTP_NOT_FOUND, RESTResponse
 from tribler_core.restapi.schema import HandledErrorSchema
 from tribler_core.utilities import path_util

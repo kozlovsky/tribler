@@ -18,7 +18,6 @@ from tribler_core.modules.metadata_store.community.remote_query_community import
 )
 from tribler_core.modules.metadata_store.payload_checker import ObjState
 from tribler_core.modules.metadata_store.serialization import CHANNEL_TORRENT
-from tribler_core.modules.metadata_store.utils import NoChannelSourcesException
 from tribler_core.utilities.unicode import hexlify
 
 minimal_blob_size = 200
@@ -26,6 +25,9 @@ maximum_payload_size = 1024
 max_entries = maximum_payload_size // minimal_blob_size
 max_search_peers = 5
 
+
+class NoChannelSourcesException(Exception):
+    pass
 
 
 @dataclass

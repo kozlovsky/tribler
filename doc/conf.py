@@ -20,7 +20,7 @@ import asyncio
 import os
 import sys
 
-from mock import Mock as MagicMock
+from unittest.mock import MagicMock
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__name__), '..'))
 tribler_components = [
@@ -41,22 +41,13 @@ _classnames = {
 }
 
 
-class Mock(MagicMock):
-
-    @classmethod
-    def __getattr__(cls, name):
-        if name == '__version__':
-            return "0.0.0"
-        return Mock if name in _classnames else Mock()
-
-
 # Mock everything except aiohttp/aiohttp_apispec, since we need the libraries to extract the Swagger docs.
 MOCK_MODULES = ['configobj', 'libtorrent', 'treq', 'pony', 'pony.orm', 'pony.orm.core', 'lz4', 'lz4.frame', 'psutil',
                 'meliae', 'libnacl', 'decorator', 'libnacl.dual', 'libnacl.sign', 'libnacl.encode', 'libnacl.public',
                 'netifaces', 'ipv8.messaging.anonymization.tunnel', 'Tribler.community.gigachannel.community',
                 'networkx', 'validate', 'ipv8.REST.root_endpoint', 'anydex.restapi.root_endpoint',
-                'anydex.restapi.wallets_endpoint']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+                'anydex.restapi.wallets_endpoint', 'pony.orm.dbapiprovider']
+sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
 sys.modules['psutil'].boot_time = lambda: 0
 
 # Ignore ipv8/anydex/wallet endpoints
@@ -70,7 +61,7 @@ from extract_swagger import extract_swagger
 asyncio.run(extract_swagger('restapi/swagger.yaml'))
 
 MOCK_MODULES = ['aiohttp', 'aiohttp_apispec']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+sys.modules.update((mod_name, MagicMock()) for mod_name in MOCK_MODULES)
 
 # -- General configuration ------------------------------------------------
 
